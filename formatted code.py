@@ -32,7 +32,10 @@ for school in data['school']:
 for students in data['students']:
     studentID.append(students['id'])
     studentLocation.append(students['homeLocation'])
-    studentAlumni.append(students['alumni'])
+    if 'alumni' in students:
+        studentAlumni.append(students['alumni'] )
+    else:
+        studentAlumni.append([])
     if 'volunteer' in students:
         studentVolunteer.append(students['volunteer'] )
     else:
