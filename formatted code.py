@@ -27,17 +27,20 @@ for school in data['school']:
     schoolName.append(school['name'])
     schoolLocation.append(school['location'])
     schoolMax.append(school['maxAllocation'])
-    
+
 #student data entry
 for students in data['students']:
     studentID.append(students['id'])
     studentLocation.append(students['homeLocation'])
-    studentAlumni.append(students['alumni'])
+    if 'alumni' in students:
+        studentAlumni.append(students['alumni'] )
+    else:
+        studentAlumni.append([])
     if 'volunteer' in students:
         studentVolunteer.append(students['volunteer'] )
     else:
         studentVolunteer.append([])
-        
+
 #define all the functions
 ## calculate euclidian distance
 def calcLocation(schoolname,studentid):
@@ -78,7 +81,7 @@ def calculate_total_points(df, school_names):
                                 (0.2 if row['volun'] == school else 0), axis=1)
 
     return df
-        
+
 ## accessory function for creating columns in df
 def get_dist_names(school_names):
     return [f"{school}_pt" for school in school_names]
@@ -112,7 +115,28 @@ df = calculate_total_points(df, schoolName)
 
 # create the output
 school_lists = {}
+
 for school in schoolName:
     school_lists[school] = []
-    
-print(school_lists)
+
+for i in range(len(schoolName)):
+    df_temp = df[[f"student_id", f"{schoolName[i]}_tot"]]
+    df_temp = df_temp.sort_values(by=f"{schoolName[i]}_tot", ascending = False)
+    df_temp = df_temp.reset_index(drop=True)
+    for j in range(schoolMax[i]) :
+        school_lists[schoolName[i]].append(df_temp.at[j, "student_id"])
+
+ans_list = []
+
+for school in schoolName :
+    temp_dict = {}
+    temp_dict[school] = school_lists[school]
+    ans_list.append(temp_dict)
+
+# write the json file
+json_string = json.dumps(ans_list, indent=4)
+
+with open("output.json", "w") as f:
+    f.write(json_string)
+
+# -- fine --
